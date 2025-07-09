@@ -10,7 +10,7 @@ export const SplashScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push("/arts"); // Navigate to the arts gallery page
+      router.push("/gallery"); // Navigate to the arts gallery page
     }, 3000); // A bit longer to appreciate the beauty
 
     return () => clearTimeout(timer); // Cleanup the timer

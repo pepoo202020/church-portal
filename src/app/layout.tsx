@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
+import Providers from "@/ui/providers/providers";
 
 const cairo = Cairo({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -20,7 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${cairo.className} antialiased`}>{children}</body>
+      <body className={`${cairo.className} antialiased`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
