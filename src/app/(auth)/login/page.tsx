@@ -13,20 +13,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { EmailFormField } from "@/ui/components/shared/EmailFormField";
-import { PasswordFormField } from "@/ui/components/shared/PasswordFormField";
 import { SharedFormField } from "@/ui/components/shared/SharedFormField";
 
 export default function LoginPage() {

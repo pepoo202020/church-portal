@@ -1,4 +1,5 @@
 "use client";
+import { registerUser } from "@/actions/register";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,13 +44,17 @@ export default function RegisterPage() {
   });
   const onRegisterSubmit = async (data: RegisterSchemaType) => {
     setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-
-      // For demo purposes, check if email is "test@example.com" to simulate existing user
-
+    const result = await registerUser(data);
+    if (result?.error) {
+      toast.error(language === "en" ? "Error" : "خطأ", {
+        description:
+          language === "en"
+            ? result.error
+            : result.error === "Email already registered."
+            ? "البريد الإلكتروني مسجل بالفعل."
+            : "فشل التسجيل. حاول مرة أخرى.",
+      });
+    } else {
       toast.success(language === "en" ? "Success" : "نجاح", {
         description:
           language === "en"
@@ -57,7 +62,8 @@ export default function RegisterPage() {
             : "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.",
       });
       navigate.push("/login");
-    }, 1500);
+    }
+    setIsLoading(false);
   };
   return (
     <div className="relative w-full flex items-center justify-center p-4">
