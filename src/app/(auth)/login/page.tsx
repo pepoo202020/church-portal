@@ -17,6 +17,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SharedFormField } from "@/ui/components/shared/SharedFormField";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const { language } = useLanguage();
@@ -31,31 +32,34 @@ export default function LoginPage() {
   });
   const onLoginSubmit = async (data: LoginSchemaType) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
 
-      // For demo purposes, accept any valid email/password combination
-      if (data.email && data.password.length >= 6) {
-        toast.success(
-          language === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح",
-          {
-            description:
-              language === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح",
-          }
-        );
-        navigate.push("/gallery");
-      } else {
-        toast.error(
-          language === "en" ? "Invalid credentials" : "بيانات الدخول غير صحيحة",
-          {
-            description:
-              language === "en"
-                ? "Invalid credentials"
-                : "بيانات الدخول غير صحيحة",
-          }
-        );
-      }
-    }, 1500);
+    setLoading(false);
+
+    if (res?.error) {
+      toast.error(
+        language === "en" ? "Invalid credentials" : "بيانات الدخول غير صحيحة",
+        {
+          description:
+            language === "en"
+              ? "Invalid credentials"
+              : "بيانات الدخول غير صحيحة",
+        }
+      );
+    } else {
+      toast.success(
+        language === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح",
+        {
+          description:
+            language === "en" ? "Login successful!" : "تم تسجيل الدخول بنجاح",
+        }
+      );
+      navigate.push("/gallery");
+    }
   };
   return (
     <div className="relative w-full flex items-center justify-center p-4">
