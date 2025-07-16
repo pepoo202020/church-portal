@@ -1,4 +1,5 @@
 "use client";
+import { verifyResetCode } from "@/actions/verifyResetCode";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,7 +32,7 @@ import { useLanguage } from "@/ui/contexts/LanguageContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -47,54 +48,45 @@ export default function BinConfirmationPage() {
       bin: "",
     },
   });
+  const userEmail = useSearchParams().get("email") || "";
 
   const onBinConfirmationSubmit = async (data: BinConfirmationSchemaType) => {
     setIsLoading(true);
+    const result = await verifyResetCode(userEmail, data.bin);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsLoading(false);
 
-      if (data.bin === "20202020") {
-        toast.success(
-          language === "en" ? "Bin Number correct" : "رقم التأكيد صحيح",
-          {
-            description:
-              language === "en"
-                ? "BIN number submitted successfully!"
-                : "تم ارسال رقم التأكيد بنجاح",
-          }
-        );
-        navigate.push("/reset-password");
+    if (result?.error) {
+      setAttempts(attempts + 1);
+      toast.error(language === "en" ? "Invalid Code" : "رمز غير صحيح", {
+        description:
+          language === "en"
+            ? `Invalid or expired code. ${2 - attempts} attempts left.`
+            : `رمز غير صحيح أو منتهي الصلاحية. متبقي ${2 - attempts} محاولة.`,
+      });
+      if (attempts >= 2) {
+        navigate.push("/login");
         setAttempts(0);
-        form.reset();
-      } else {
-        form.reset();
-        setAttempts(attempts + 1);
-        toast.error(
-          language === "en" ? "Invalid Bin Number" : "رقم التأكيد غير صحيح",
-          {
-            description:
-              language === "en"
-                ? `Invalid Bin Number, still ${3 - attempts} attempts left`
-                : `رقم التأكيد غير صحيحرقم التأكيد غير صحيح, باقي ${
-                    3 - attempts
-                  } محاولة`,
-          }
-        );
-        if (attempts === 2) {
-          navigate.push("/login");
-          setAttempts(0);
-        }
       }
-    }, 1500);
+      form.reset();
+    } else {
+      toast.success(language === "en" ? "Code correct" : "الرمز صحيح", {
+        description:
+          language === "en"
+            ? "Code verified! You can now reset your password."
+            : "تم التحقق من الرمز! يمكنك الآن إعادة تعيين كلمة المرور.",
+      });
+      navigate.push("/reset-password?email=" + encodeURIComponent(userEmail));
+      setAttempts(0);
+      form.reset();
+    }
   };
   return (
     <div className="relative w-full flex items-center justify-center p-4">
       <Card className="w-full max-w-md animate-fade-in">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
-            {language === "en" ? "Forget Password" : "نسيت كلمة المرور"}
+            {language === "en" ? "BIN Confirmation" : "ارسال الرمز التأكيدي"}
           </CardTitle>
           <CardDescription>
             {language === "en"

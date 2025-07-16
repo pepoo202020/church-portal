@@ -1,4 +1,5 @@
 "use client";
+import { requestPasswordReset } from "@/actions/requestPasswordReset";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,25 +44,34 @@ export default function ForgetPasswordPage() {
 
   const onForgetPasswordSubmit = async (data: ForgetPasswordShemaType) => {
     setIsLoading(true);
+    const result = await requestPasswordReset(data.email);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsLoading(false);
 
-      // For demo purposes, check if email is "notfound@example.com" to simulate non-existent user
-
+    if (result?.error) {
+      toast.error(language === "en" ? "Error" : "خطأ", {
+        description:
+          language === "en"
+            ? result.error
+            : result.error === "User not found"
+            ? "المستخدم غير موجود"
+            : "حدث خطأ أثناء إرسال البريد الإلكتروني",
+      });
+    } else {
       toast.success(
         language === "en" ? "Email sent successfully" : "تم ارسال البريد بنجاح",
         {
           description:
             language === "en"
-              ? "Email Content with number 20202020, valid for 3min"
-              : "البريد الالكتروني محتواه رقم 20202020، وصالح لمدة 3 دقائق",
+              ? "Check your email for the reset code."
+              : "تحقق من بريدك الإلكتروني للحصول على رمز إعادة التعيين.",
         }
       );
-      navigate.push("/bin-confirmation");
+      navigate.push(
+        "/bin-confirmation?email=" + encodeURIComponent(data.email)
+      );
       form.reset();
-    }, 1500);
+    }
   };
   return (
     <div className="relative w-full flex items-center justify-center p-4">

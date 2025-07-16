@@ -10,10 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Globe, Moon, Settings, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/ui/contexts/LanguageContext";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const GalleryHeader = () => {
   const { setTheme, theme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
   return (
     <header
@@ -36,24 +41,57 @@ export const GalleryHeader = () => {
           {/* Profile & Settings */}
           <div className="flex items-center gap-2">
             {/* Profile */}
-            <DropdownMenu dir={language === "ar" ? "rtl" : "ltr"}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={language === "ar" ? "start" : "end"}>
-                <DropdownMenuItem>
-                  {language === "en" ? "Profile" : "الحساب"}
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  {language === "en" ? "My Artworks" : "أعمالي"}
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  {language === "en" ? "Logout" : "تسجيل الخروج"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {user ? (
+              <DropdownMenu dir={language === "ar" ? "rtl" : "ltr"}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    {/* User Image */}
+                    <Avatar>
+                      <AvatarImage src={user.image!} />
+                      {/* get first character of each name */}
+                      <AvatarFallback>
+                        {user.name?.split(" ")[0][0]}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align={language === "ar" ? "start" : "end"}
+                >
+                  <DropdownMenuItem>
+                    {language === "en" ? "Profile" : "الحساب"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    {language === "en" ? "My Artworks" : "أعمالي"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    {language === "en" ? "Logout" : "تسجيل الخروج"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <DropdownMenu dir={language === "ar" ? "rtl" : "ltr"}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align={language === "ar" ? "start" : "end"}
+                >
+                  <DropdownMenuItem>
+                    <Link href="/login">
+                      {language === "en" ? "Login" : "تسجيل الدخول"}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/register">
+                      {language === "en" ? "Register" : "تسجيل حساب جديد"}
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             {/* Settings */}
             <DropdownMenu dir={language === "ar" ? "rtl" : "ltr"}>
               <DropdownMenuTrigger asChild>

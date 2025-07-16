@@ -1,5 +1,6 @@
 "use client";
 
+import { resetPassword } from "@/actions/resetPassword";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,8 +20,10 @@ import { useLanguage } from "@/ui/contexts/LanguageContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export default function ResetPassword() {
   const { language } = useLanguage();
@@ -31,8 +34,40 @@ export default function ResetPassword() {
       password: "",
     },
   });
-  const onResetPasswordSubmit = (values: ResetPasswordSchemaType) => {
-    console.log(values);
+  const navigate = useRouter();
+  const email = useSearchParams().get("email") || "";
+  const onResetPasswordSubmit = async (values: ResetPasswordSchemaType) => {
+    const result = await resetPassword({
+      email,
+      newPassword: values.password,
+    });
+
+    setIsLoading(false);
+
+    if (result?.error) {
+      toast.error(language === "en" ? "Error" : "خطأ", {
+        description:
+          language === "en"
+            ? result.error
+            : result.error === "Invalid or expired token"
+            ? "رمز غير صالح أو منتهي الصلاحية"
+            : "حدث خطأ أثناء إعادة تعيين كلمة المرور",
+      });
+    } else {
+      toast.success(
+        language === "en"
+          ? "Password reset successful"
+          : "تم إعادة تعيين كلمة المرور بنجاح",
+        {
+          description:
+            language === "en"
+              ? "You can now log in with your new password."
+              : "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+        }
+      );
+      navigate.push("/login");
+      form.reset();
+    }
   };
   return (
     <div className="relative w-full flex items-center justify-center p-4">

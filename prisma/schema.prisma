@@ -22,6 +22,8 @@ model User {
   updatedAt DateTime  @updatedAt
   comments  Comment[]
   votes     Vote[]
+  resetToken      String?
+  resetTokenExpiry DateTime?
 }
 
 model Artwork {
